@@ -61,7 +61,7 @@ public class HelloController {
             return "请求过多，降级处理";
         }
         System.out.println(name);
-        return "hello " + name;
+        return "你好 " + name;
     }
 
     /**
