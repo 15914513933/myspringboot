@@ -1,24 +1,17 @@
 package com.chenkj.myspringboot.controller;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.RateLimiter;
-import com.sun.tools.javadoc.Start;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -137,4 +130,19 @@ public class HelloController {
             CURRENT_USER.remove();
         }
     }
+
+    private boolean start = true;
+
+    @GetMapping("cpuStart")
+    public void cpuStart(){
+        while(start){
+            System.out.println(1);
+        }
+    }
+
+    @GetMapping("cpuStop")
+    public void cpuStop(){
+        start = false;
+    }
+
 }
