@@ -6,19 +6,20 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.RateLimiter;
+import com.sun.tools.javadoc.Start;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,10 +27,13 @@ import java.util.concurrent.TimeUnit;
  * @Description
  * @Date 2020-08-14 17:04
  */
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class HelloController {
     private RateLimiter rateLimiter = RateLimiter.create(10);
+
+    private static final ThreadLocal CURRENT_USER = new ThreadLocal<>();
 
     /**
      * 本地缓存
@@ -50,6 +54,7 @@ public class HelloController {
 
     /**
      * 限流
+     *
      * @param name
      * @return
      */
@@ -66,6 +71,7 @@ public class HelloController {
 
     /**
      * 浏览器缓存  还有（eTag）
+     *
      * @param ifModifiedSince
      * @return
      * @throws Exception
@@ -92,4 +98,43 @@ public class HelloController {
         return new ResponseEntity<String>(helloWorld, httpHeaders, HttpStatus.OK);
     }
 
+
+    /**
+     * ThreadLocal使用  tomcat 使用线程池
+     * @param userId
+     * @return
+     */
+    @GetMapping("wrong")
+    public Map wrong(@RequestParam("userId") Integer userId) {
+        //设置用户信息之前先查询一次ThreadLocal中的用户信息
+        String before = Thread.currentThread().getName() + ":" + CURRENT_USER.get();
+        //设置用户信息到ThreadLocal
+        CURRENT_USER.set(userId);
+        //设置用户信息之后再查询一次ThreadLocal中的用户信息
+        String after = Thread.currentThread().getName() + ":" + CURRENT_USER.get();
+        //汇总输出两次查询结果
+        Map result = new HashMap();
+        result.put("before", before);
+        result.put("after", after);
+        return result;
+    }
+
+    @GetMapping("right")
+    public Map right(@RequestParam("userId") Integer userId) {
+        //设置用户信息之前先查询一次ThreadLocal中的用户信息
+        String before = Thread.currentThread().getName() + ":" + CURRENT_USER.get();
+        //设置用户信息到ThreadLocal
+        CURRENT_USER.set(userId);
+        try{
+            //设置用户信息之后再查询一次ThreadLocal中的用户信息
+            String after = Thread.currentThread().getName() + ":" + CURRENT_USER.get();
+            //汇总输出两次查询结果
+            Map result = new HashMap();
+            result.put("before", before);
+            result.put("after", after);
+            return result;
+        }finally {
+            CURRENT_USER.remove();
+        }
+    }
 }
