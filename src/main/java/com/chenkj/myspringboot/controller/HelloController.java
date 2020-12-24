@@ -165,5 +165,21 @@ public class HelloController {
         executorService.submit(thread);
     }
 
+    @GetMapping("traceMethodTime")
+    public void traceMethodTime(){
+
+    }
+
+    private void time1000() throws Exception{
+        Thread.sleep(1000);
+    }
+
+    private void time2000() throws Exception{
+        Thread.sleep(2000);
+    }
+
+    private void time3000() throws Exception{
+        Thread.sleep(3000);
+    }
 
 }
