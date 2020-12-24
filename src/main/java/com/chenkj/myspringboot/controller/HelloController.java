@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,6 +29,8 @@ public class HelloController {
     private RateLimiter rateLimiter = RateLimiter.create(10);
 
     private static final ThreadLocal CURRENT_USER = new ThreadLocal<>();
+
+    private static ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     /**
      * 本地缓存
@@ -133,16 +137,33 @@ public class HelloController {
 
     private boolean start = true;
 
-    @GetMapping("cpuStart")
+    @GetMapping("cpuHigh")
     public void cpuStart(){
-        while(start){
-            System.out.println(1);
-        }
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                while(start){
+                }
+            }
+        };
+        executorService.submit(thread);
     }
 
     @GetMapping("cpuStop")
     public void cpuStop(){
         start = false;
     }
+
+    @GetMapping("blockThread")
+    public void blockThread(){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                System.out.println("blockThread");
+            }
+        };
+        executorService.submit(thread);
+    }
+
 
 }
