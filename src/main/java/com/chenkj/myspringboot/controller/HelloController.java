@@ -166,8 +166,10 @@ public class HelloController {
     }
 
     @GetMapping("traceMethodTime")
-    public void traceMethodTime(){
-
+    public void traceMethodTime() throws Exception{
+        time1000();
+        time2000();
+        time3000();
     }
 
     private void time1000() throws Exception{
